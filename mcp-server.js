@@ -30,7 +30,8 @@ const client = axios.create({
 // -----------------------------
 // OpenAI-compatible plugin spec
 // -----------------------------
-app.get("/.well-known/ai-plugin.json", (_, res) => {
+app.get("/.well-known/ai-plugin.json", (req, res) => {
+  res.setHeader("Content-Type", "application/json");
   res.json({
     schema_version: "v1",
     name_for_model: "appwrite_mcp",
@@ -42,7 +43,7 @@ app.get("/.well-known/ai-plugin.json", (_, res) => {
     auth: { type: "none" },
     api: {
       type: "openapi",
-      url: `${URL}/openapi.yaml`,
+      url: `${URL}/openapi.yaml`, // Make sure URL is correctly resolved from .env
     },
     logo_url: `${URL}/logo.png`,
     contact_email: "admin@example.com",
