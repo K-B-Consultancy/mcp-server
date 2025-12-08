@@ -30,24 +30,23 @@ const client = axios.create({
 // -----------------------------
 // OpenAI-compatible plugin spec
 // -----------------------------
-app.get("/.well-known/ai-plugin.json", (req, res) => {
+app.get("/manifest.json", (req, res) => {
   res.setHeader("Content-Type", "application/json");
   res.json({
     schema_version: "v1",
+    name_for_human: "Appwrite MCP Tools",
     name_for_model: "appwrite_mcp",
-    name_for_human: "Appwrite Task Manager",
     description_for_model:
-      "Plugin to manage tasks using Appwrite (list, create, complete).",
+      "Plugin for managing tasks using Appwrite (listTasks, createTask, completeTask).",
     description_for_human:
-      "Interact with your Appwrite tasks: view, add, and complete tasks via chat.",
-    auth: { type: "none" },
+      "Manage your tasks: list, create, complete — backed by Appwrite.",
+    auth: {
+      type: "none",
+    },
     api: {
       type: "openapi",
-      url: `${URL}/openapi.yaml`, // Make sure URL is correctly resolved from .env
+      url: `${process.env.URL}/openapi.yaml`,
     },
-    logo_url: `${URL}/logo.png`,
-    contact_email: "admin@example.com",
-    legal_info_url: `${URL}/legal`,
   });
 });
 
