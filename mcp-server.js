@@ -52,19 +52,24 @@ app.get("/manifest.json", (req, res) => {
 
 // Serve static OpenAPI spec
 app.get("/openapi.yaml", (_, res) => {
+  console.log("[OpenAPI] Fetching openapi.yaml");
   const openapiPath = path.join(process.cwd(), "openapi.yaml");
   if (!fs.existsSync(openapiPath)) {
+    console.error("[OpenAPI] openapi.yaml not found at:", openapiPath);
     return res.status(404).send("openapi.yaml not found");
   }
+  console.log("[OpenAPI] Successfully serving openapi.yaml");
   res.type("yaml").send(fs.readFileSync(openapiPath, "utf8"));
 });
 
 // -----------------------------
-// Function Endpoints for LobeChat
-// -----------------------------
-
 app.post("/v1/listTasks", async (req, res) => {
+  console.log("[listTasks] Request received");
   try {
+    console.log(
+      "[listTasks] Fetching documents from Appwrite collection:",
+      APPWRITE_COLLECTION
+    );
     const r = await client.get(
       `/databases/default/collections/${APPWRITE_COLLECTION}/documents`
     );
@@ -73,17 +78,24 @@ app.post("/v1/listTasks", async (req, res) => {
       title: t.title,
       completed: t.completed,
     }));
+    console.log("[listTasks] Successfully retrieved", tasks.length, "tasks");
     res.json({ tasks });
   } catch (e) {
+    console.error("[listTasks] Error:", e.message, e.response?.data);
     res.status(500).json({ error: e.message });
   }
 });
 
 app.post("/v1/createTask", async (req, res) => {
+  console.log("[createTask] Request received with body:", req.body);
   const { title } = req.body;
-  if (!title) return res.status(400).json({ error: "Missing title" });
+  if (!title) {
+    console.error("[createTask] Error: Missing title in request");
+    return res.status(400).json({ error: "Missing title" });
+  }
 
   try {
+    console.log("[createTask] Creating task with title:", title);
     await client.post(
       `/databases/default/collections/${APPWRITE_COLLECTION}/documents`,
       {
@@ -91,25 +103,37 @@ app.post("/v1/createTask", async (req, res) => {
         data: { title, completed: false },
       }
     );
+    console.log("[createTask] Task created successfully:", title);
     res.json({ result: "Task created successfully" });
   } catch (e) {
+    console.error("[createTask] Error:", e.message, e.response?.data);
     res.status(500).json({ error: e.message });
   }
 });
 
 app.post("/v1/completeTask", async (req, res) => {
+  console.log("[completeTask] Request received with body:", req.body);
   const { taskId } = req.body;
-  if (!taskId) return res.status(400).json({ error: "Missing taskId" });
+  if (!taskId) {
+    console.error("[completeTask] Error: Missing taskId in request");
+    return res.status(400).json({ error: "Missing taskId" });
+  }
 
   try {
+    console.log("[completeTask] Marking task as completed:", taskId);
     await client.patch(
       `/databases/default/collections/${APPWRITE_COLLECTION}/documents/${taskId}`,
       {
         data: { completed: true },
       }
     );
+    console.log(
+      "[completeTask] Task marked as completed successfully:",
+      taskId
+    );
     res.json({ result: "Task marked as completed" });
   } catch (e) {
+    console.error("[completeTask] Error:", e.message, e.response?.data);
     res.status(500).json({ error: e.message });
   }
 });
