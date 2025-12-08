@@ -10,33 +10,86 @@ paths:
       responses:
         "200":
           description: A list of tasks
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tasks:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Task"
+
   /v1/createTask:
     post:
       operationId: createTask
       summary: Create a new task
       requestBody:
+        required: true
         content:
           application/json:
             schema:
               type: object
+              required:
+                - title
               properties:
                 title:
                   type: string
+                  description: Title of the new task
       responses:
         "200":
           description: Task created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                    example: Task created successfully
+
   /v1/completeTask:
     post:
       operationId: completeTask
       summary: Mark a task as completed
       requestBody:
+        required: true
         content:
           application/json:
             schema:
               type: object
+              required:
+                - taskId
               properties:
                 taskId:
                   type: string
+                  description: ID of the task to mark as completed
       responses:
         "200":
-          description: Task marked as completed
+          description: Task marked as complete
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                    example: Task marked as completed
+
+components:
+  schemas:
+    Task:
+      type: object
+      required:
+        - id
+        - title
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the task
+        title:
+          type: string
+          description: Title of the task
+        completed:
+          type: boolean
+          description: Whether the task is completed
