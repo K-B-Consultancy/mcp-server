@@ -1,0 +1,42 @@
+openapi: 3.0.1
+info:
+  title: Appwrite MCP API
+  version: "1.0"
+paths:
+  /v1/listTasks:
+    post:
+      operationId: listTasks
+      summary: List all tasks
+      responses:
+        "200":
+          description: A list of tasks
+  /v1/createTask:
+    post:
+      operationId: createTask
+      summary: Create a new task
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+      responses:
+        "200":
+          description: Task created
+  /v1/completeTask:
+    post:
+      operationId: completeTask
+      summary: Mark a task as completed
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                taskId:
+                  type: string
+      responses:
+        "200":
+          description: Task marked as completed
