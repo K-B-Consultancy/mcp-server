@@ -3,6 +3,7 @@ import axios from "axios";
 import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
+import { randomUUID } from "crypto";
 
 dotenv.config();
 
@@ -14,7 +15,8 @@ const {
   APPWRITE_KEY,
   APPWRITE_PROJECT,
   APPWRITE_ENDPOINT,
-  APPWRITE_COLLECTION,
+  APPWRITE_DATABASE_ID,
+  APPWRITE_COLLECTION_ID,
   URL, // domain where the plugin will be served from
 } = process.env;
 
@@ -45,7 +47,7 @@ app.get("/manifest.json", (req, res) => {
     },
     api: {
       type: "openapi",
-      url: `${process.env.URL}/openapi.yaml`,
+      url: `${URL}/openapi.yaml`,
     },
   });
 });
@@ -68,10 +70,10 @@ app.post("/v1/listTasks", async (req, res) => {
   try {
     console.log(
       "[listTasks] Fetching documents from Appwrite collection:",
-      APPWRITE_COLLECTION
+      APPWRITE_COLLECTION_ID
     );
     const r = await client.get(
-      `/databases/default/collections/${APPWRITE_COLLECTION}/documents`
+      `/databases/${APPWRITE_DATABASE_ID}/collections/${APPWRITE_COLLECTION_ID}/documents`
     );
     const tasks = r.data.documents.map((t) => ({
       id: t.$id,
@@ -95,16 +97,21 @@ app.post("/v1/createTask", async (req, res) => {
   }
 
   try {
-    console.log("[createTask] Creating task with title:", title);
-    await client.post(
-      `/databases/default/collections/${APPWRITE_COLLECTION}/documents`,
+    console.log("[createTask] Creating task with title:", title, documentId);
+    const response = await client.post(
+      `/databases/${APPWRITE_DATABASE_ID}/collections/${APPWRITE_COLLECTION_ID}/documents`,
       {
-        documentId: "unique()",
-        data: { title, completed: false },
+        documentId: randomUUID(),
+        data: {
+          title: title,
+        },
       }
     );
     console.log("[createTask] Task created successfully:", title);
-    res.json({ result: "Task created successfully" });
+    res.json({
+      result: "Task created successfully",
+      taskId: response.data.$id,
+    });
   } catch (e) {
     console.error("[createTask] Error:", e.message, e.response?.data);
     res.status(500).json({ error: e.message });
@@ -122,7 +129,7 @@ app.post("/v1/completeTask", async (req, res) => {
   try {
     console.log("[completeTask] Marking task as completed:", taskId);
     await client.patch(
-      `/databases/default/collections/${APPWRITE_COLLECTION}/documents/${taskId}`,
+      `/databases/${APPWRITE_DATABASE_ID}/collections/${APPWRITE_COLLECTION_ID}/documents/${taskId}`,
       {
         data: { completed: true },
       }
