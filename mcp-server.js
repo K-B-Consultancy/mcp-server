@@ -97,11 +97,11 @@ app.post("/v1/createTask", async (req, res) => {
   }
 
   try {
-    console.log("[createTask] Creating task with title:", title, documentId);
+    console.log("[createTask] Creating task with title:", title);
     const response = await client.post(
       `/databases/${APPWRITE_DATABASE_ID}/collections/${APPWRITE_COLLECTION_ID}/documents`,
       {
-        documentId: randomUUID(),
+        documentId: randomUUID().toString(),
         data: {
           title: title,
         },
