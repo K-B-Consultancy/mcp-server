@@ -85,7 +85,7 @@ Before running this project, ensure you have the following installed:
 pnpm start
 ```
 
-The server will start on `http://localhost:3000` (or the PORT specified in your environment).
+The server will start on `http://localhost:3001` (or the PORT specified in your environment).
 
 ### API Endpoints
 
